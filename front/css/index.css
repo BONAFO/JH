@@ -1,0 +1,83 @@
+.separator {
+    width: 99%;
+    background-color: transparent;
+    height: 1px;
+    border: .001px dashed orange;
+}
+
+.subcont {
+    margin-bottom: 2vh;
+}
+
+.drop-area {
+    position: relative;
+    z-index: 100;
+    width: 99%;
+    background-color: orange;
+    padding: 5vh 0%;
+    margin-left: 0.5%;
+    transition: background-color 0.3s ease;
+    cursor: pointer;
+}
+
+.btn-closes {
+    position: relative;
+    /* COLOCAR EN LA PARTA PERIOR DEL DIV */
+    bottom: 5vh;
+}
+
+.btn {
+    font-size: 1.3rem;
+    color: #fff;
+    padding: .2vh .5vw;
+    cursor: pointer;
+    background-color: transparent;
+    border: none;
+    transition: color 0.3s ease, background-color 0.3s ease;
+}
+
+.btn-closes:hover {
+    color: red;
+}
+
+.btn-add:hover {
+    color: lightgreen;
+}
+
+.btn-add {
+    background-color: #fff;
+    color: black;
+    width: 100%;
+    text-align: center;
+    top: 5vh;
+    margin-bottom: 1vh;
+}
+
+.div-ubicador {
+    position: relative;
+    left: 95%;
+    width: fit-content;
+}
+
+.btn-ubicador {
+    position: relative;
+    font-size: 1.3rem;
+}
+
+.btn-ubicador:hover {
+    color: lightgreen;
+}
+
+.btn-up {
+    bottom: 30% !important;
+}
+
+.btn-down {
+    top: 0%;
+}
+
+textarea {
+    background-color: transparent;
+    border: 1px solid black;
+    color: black;
+}

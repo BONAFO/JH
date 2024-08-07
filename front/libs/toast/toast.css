@@ -1,0 +1,14 @@
+#toast {
+    background-color: #ffffff;
+    position: fixed;
+    width: fit-content;
+    padding: 0% .5%;
+    border-radius: 0% 0% 20px 0%;
+    bottom: -3rem;
+    transition: bottom .3s;
+    opacity: 0;
+}
+
+#toast label {
+    font-size: 1.1rem;
+}
