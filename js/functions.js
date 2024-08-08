@@ -1,10 +1,12 @@
-const { writeFileSync, readFileSync } = require("original-fs")
+const { writeFileSync, readFileSync, renameSync } = require("original-fs")
+
+const base = "./scripts/";
 
 const save = (data) => {
 
     try {
-        writeFileSync(`./scripts/` + data.name + ".json", JSON.stringify(data.data))
-        return { bool: true, msj: "Saved!", url: `./scripts/` + data.name + ".json" }
+        writeFileSync(base + data.name + ".json", JSON.stringify(data.data))
+        return { bool: true, msj: "Saved!", url: base + data.name + ".json" }
 
     } catch (error) {
         return { bool: false, msj: error }
@@ -12,6 +14,7 @@ const save = (data) => {
 }
 
 const load = (url) => {
+    console.log(url);
 
     try {
         const data = JSON.parse(readFileSync(url).toString())
@@ -23,10 +26,22 @@ const load = (url) => {
     }
 }
 
+const renameSC = (data) => {
 
+
+    try {
+        renameSync(base + data.old + ".json", base + data.new + ".json")
+        return { bool: true, msj: " Changed to ", scriptName: data.new }
+
+
+    } catch (error) {
+        return { bool: false, msj: error }
+    }
+};
 
 module.exports = {
     save,
-    load
+    load,
+    renameSC,
 
 }

@@ -6,6 +6,22 @@ const { ipcRenderer, dialog } = require('electron');
 // });
 
 
+const show_good_toast = (txt) => {
+    show_toast(txt, {
+        style: {
+            "background-color": 'rgb(186, 255, 161)'
+        }
+    })
+}
+
+const show_bad_toast = (txt) => {
+    show_toast(txt, {
+        style: {
+            "background-color": 'rgb(250, 118, 118)'
+        }
+    })
+}
+
 
 const save = () => {
     const savedata = [];
@@ -28,6 +44,7 @@ const load = (path) => {
 }
 
 const show_loaded_content = (data) => {
+
     data.map((c, i) => {
         create_dialog_box()
         const container = document.getElementById(`sb-${i}`).querySelector("[data-ctn]");
@@ -51,34 +68,58 @@ const show_loaded_content = (data) => {
     })
 }
 
+const search_file = (start = true) => {
+    const input = document.createElement("input");
+    input.type = "file";
+    input.style.display = "none";
+    input.accept = ".json";
+    input.click()
+
+    input.onchange = (e) => {
+        const files = e.target.files;
+        if (start) {
+            ipcRenderer.send("load", files[0].path)
+        } else {
+            sessionStorage.setItem("reopen", files[0].path)
+            window.location.reload()
+        }
+    }
+
+}
 const start = () => {
-    Swal.fire({
-        title: "Welcome",
-        text: "What do you want to do?",
-        showCancelButton: true,
-        confirmButtonText: "Load a Script",
-        cancelButtonText: "Create a new Script",
-        customClass: {
-            popup: "cu-pop"
-        }
-    }).then((result) => {
-        if (result.isConfirmed) {
-            const input = document.createElement("input");
-            input.type = "file";
-            input.style.display = "none";
-            input.accept = ".json";
-            input.click()
-            input.onchange = (e) => {
-                const files = e.target.files;
-                // sessionStorage.setItem('file', files[0].path)
-                ipcRenderer.send("load", files[0].path)
+    if (sessionStorage.getItem("reopen")) {
 
+        ipcRenderer.send("load", sessionStorage.getItem("reopen"))
+        sessionStorage.removeItem("reopen")
+    } else {
+        Swal.fire({
+            title: "Welcome",
+            text: "What do you want to do?",
+            showCancelButton: true,
+            confirmButtonText: "Load a Script",
+            cancelButtonText: "Create a new Script",
+            customClass: {
+                popup: "cu-pop"
             }
+        }).then((result) => {
+            if (result.isConfirmed) {
+                const input = document.createElement("input");
+                input.type = "file";
+                input.style.display = "none";
+                input.accept = ".json";
+                input.click()
+                input.onchange = (e) => {
+                    const files = e.target.files;
+                    // sessionStorage.setItem('file', files[0].path)
+                    ipcRenderer.send("load", files[0].path)
 
-        } else if (result.isDismissed) {
-            change_name()
-        }
-    });
+                }
+
+            } else if (result.isDismissed) {
+                change_name()
+            }
+        });
+    }
 
 }
 
@@ -107,7 +148,8 @@ const change_name = () => {
 
                 if (sessionStorage.getItem("files")) {
                     clearInterval(int)
-                    load(sessionStorage.getItem("files"))
+                    sessionStorage.setItem("reopen", files[0].path)
+                    window.location.reload()
                 }
 
                 crono += 300
@@ -128,17 +170,45 @@ const change_name = () => {
 }
 
 
+ipcRenderer.on("bc-rename", () => {
+    Swal.fire({
+        title: "Welcome",
+        text: "Change name",
+        input: "text",
+        inputPlaceholder: "Script Name",
+        showCancelButton: true,
+        confirmButtonText: "Change!",
+        cancelButtonText: "Back",
+        customClass: {
+            popup: "cu-pop"
+        }
+    }).then((result) => {
+
+        if (result.isConfirmed) {
+            const actualname = scriptName;
+            ipcRenderer.send('rename', { new: result.value, old: actualname })
+        }
+
+    });
+})
+
+
 
 ipcRenderer.on("bc-save", () => {
     save()
 })
+ipcRenderer.on("bc-load", () => {
+    save()
+    search_file(false)
+})
+
+ipcRenderer.on("bc-new", () => {
+    save()
+    window.location.reload()
+})
 
 ipcRenderer.on('resp-save', (e, data) => {
-    show_toast(data.msj, {
-        style: {
-            "background-color": (data.bool) ? ('rgb(186, 255, 161)') : ('rgb(250, 118, 118)')
-        }
-    })
+    (data.bool) ? (show_good_toast(data.msj)) : (show_bad_toast(data.msj))
 
     if (data.bool) {
         sessionStorage.setItem("files", data.url)
@@ -146,13 +216,20 @@ ipcRenderer.on('resp-save', (e, data) => {
 });
 
 ipcRenderer.on('resp-load', (e, data) => {
-    show_toast(data.msj + " " + data.scriptName, {
-        style: {
-            "background-color": (data.bool) ? ('rgb(186, 255, 161)') : ('rgb(250, 118, 118)')
-        }
-    })
-    scriptName = data.scriptName;
+    (data.bool) ? (
+        show_good_toast(data.msj + " " + data.scriptName),
+        scriptName = data.scriptName
+    ) : (show_bad_toast(data.msj + " " + data.scriptName))
+
+
+
     show_loaded_content(data.data)
+
+
+});
+ipcRenderer.on('resp-rename', (e, data) => {
+    (data.bool) ? (show_good_toast(data.msj + " " + data.scriptName)) : (show_bad_toast(data.msj + " " + data.scriptName))
+    scriptName = data.scriptName;
 
 
 });

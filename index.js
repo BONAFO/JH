@@ -2,7 +2,7 @@ const { log } = require('console');
 const { app, BrowserWindow, globalShortcut, ipcMain, Menu } = require('electron');
 const { mkdirSync } = require('fs');
 const path = require('path');
-const { save, load } = require('./js/functions');
+const { save, load, renameSC } = require('./js/functions');
 
 
 
@@ -36,25 +36,29 @@ function createWindow() {
             submenu: [{
                     label: 'Nuevo',
                     click() {
-                        console.log('Nuevo clickeado');
+                        mainWindow.webContents.send('bc-new', '');
+
                     }
                 },
                 {
                     label: 'Abrir',
                     click() {
-                        console.log('Abrir clickeado');
+                        mainWindow.webContents.send('bc-load', '');
+
                     }
+
                 },
                 {
                     label: 'Rename',
                     click() {
-                        console.log('Abrir clickeado');
+                        mainWindow.webContents.send('bc-rename', '');
                     }
                 },
                 {
                     label: 'Guardar',
+                    accelerator: 'Ctrl+S',
                     click() {
-                        console.log('Abrir clickeado');
+                        mainWindow.webContents.send('bc-save', '');
                     }
                 },
                 { type: 'separator' },
@@ -86,12 +90,15 @@ function createWindow() {
     globalShortcut.register('Ctrl+I', () => {
         mainWindow.webContents.toggleDevTools();
     });
+
     globalShortcut.register('F5', () => {
         mainWindow.webContents.reload();
     });
     globalShortcut.register('Ctrl+S', () => {
         mainWindow.webContents.send('bc-save', '');
     });
+
+
 
 
 }
@@ -118,11 +125,20 @@ ipcMain.on('save', (e, data) => {
 
 })
 
+
 ipcMain.on('load', (e, data) => {
     // e.sender.send('resp-save', 'Respuesta desde el main process');
     const resp = load(data)
     e.sender.send('resp-load', resp);
 })
+
+
+ipcMain.on('rename', (e, data) => {
+    const resp = renameSC(data)
+    e.sender.send('resp-rename', resp);
+})
+
+
 
 
 app.on('window-all-closed', () => {
